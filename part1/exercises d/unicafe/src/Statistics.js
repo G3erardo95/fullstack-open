@@ -1,7 +1,7 @@
 import { StatisticLine } from "./StatisticLine";
 
 export const Statistics = ({ good, neutral, bad, total }) => {
-  if (total != 0) {
+  if (total !== 0) {
     return (
       <>
         <StatisticLine text={"Good"} value={good} />
@@ -9,10 +9,10 @@ export const Statistics = ({ good, neutral, bad, total }) => {
         <StatisticLine text={"Bad"} value={bad} />
         <StatisticLine text={"Total"} value={total} />
         <StatisticLine text={"Average"} value={(good - bad) / total} />
-        <StatisticLine text={"Positive"} value={(good / total) * 100}/>
+        <StatisticLine text={"Positive"} value={(good / total) * 100}  />
       </>
     );
   } else {
-    return <h2> No feedback given</h2>;
+    return <h2>No feedback given</h2>;
   }
 };
