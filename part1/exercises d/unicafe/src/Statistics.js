@@ -9,7 +9,7 @@ export const Statistics = ({ good, neutral, bad, total }) => {
         <StatisticLine text={"Bad"} value={bad} />
         <StatisticLine text={"Total"} value={total} />
         <StatisticLine text={"Average"} value={(good - bad) / total} />
-        <StatisticLine text={"Positive"} value={(good / total) * 100}  />
+        <StatisticLine text={"Positive"} value={(good / total) * 100} />
       </>
     );
   } else {
