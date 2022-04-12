@@ -4,7 +4,7 @@ import { Total } from "./Total";
 
 export const Course = ({ courses }) => {
   return courses.map((course) => (
-    <li  key={course.id} style={{listStyle: 'none'}}>
+    <li key={course.id} style={{listStyle: 'none'}}>
       <Header course={course.name} />
       <Content content={course.parts} />
       <Total content={course.parts} />
