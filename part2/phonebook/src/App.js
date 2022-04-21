@@ -8,20 +8,19 @@ const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
-  const [filteredData, setFilteredData] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
     phoneServices.getPerson().then((response) => {
       setPersons(response.data);
     });
-    console.log("effect");
   }, []);
 
   const newPerson = {
     name: newName,
     number: newNumber,
   };
-  
+
   const addPerson = (event) => {
     event.preventDefault();
     const isPersonAdded = persons.map((p) => p.name).includes(newName);
@@ -33,7 +32,7 @@ const App = () => {
           `${existingPerson.name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        phoneServices.changePerson(existingPerson.id, newPerson );
+        phoneServices.changePerson(existingPerson.id, newPerson);
       }
     } else {
       phoneServices.addNewPerson(newPerson).then((response) => {
@@ -52,7 +51,7 @@ const App = () => {
         setFilteredData(deletedPerson);
       });
     }
-  }
+  };
 
   const handleAddPerson = (event) => {
     setNewName(event.target.value);
@@ -63,16 +62,8 @@ const App = () => {
   };
 
   const handleFilter = (event) => {
-    const searchWord = event.target.value;
-    const newFilter = persons.filter((value) => {
-      return value.name.includes(searchWord);
-    });
-
-    if (searchWord === "") {
-      setFilteredData([]);
-    } else {
-      setFilteredData(newFilter);
-    }
+    const filterSearch = (s) => persons.filter((f) => f.name.includes(s));
+    setFilteredData(filterSearch(event.target.value));
   };
 
   return (
