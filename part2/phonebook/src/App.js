@@ -1,40 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Filter } from "./components/Filter";
 import { Persons } from "./components/Persons";
 import { PersonForm } from "./components/PersonForm";
+import phoneServices from "./services/phoneServices";
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filteredData, setFilteredData] = useState("");
 
+  useEffect(() => {
+    phoneServices.getPerson().then((response) => {
+      setPersons(response.data);
+    });
+    console.log("effect");
+  }, []);
+
+  const newPerson = {
+    name: newName,
+    number: newNumber,
+  };
+  
   const addPerson = (event) => {
     event.preventDefault();
-    if (checkDuplicate(newName)) {
-      alert(`${newName} is already added to phonebook`);
+    const isPersonAdded = persons.map((p) => p.name).includes(newName);
+    const existingPerson = persons.find((p) => newName === p.name);
+
+    if (isPersonAdded) {
+      if (
+        window.confirm(
+          `${existingPerson.name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        phoneServices.changePerson(existingPerson.id, newPerson );
+      }
     } else {
-      setPersons(persons.concat(newPerson));
-      setNewName("");
-      setNewNumber("");
+      phoneServices.addNewPerson(newPerson).then((response) => {
+        setPersons(persons.concat(response.data));
+        setNewName("");
+        setNewNumber("");
+      });
     }
   };
 
-  const checkDuplicate = (person) => {
-    return persons.map((p) => p.name).includes(person);
-  };
-
-  const newPerson = [
-    {
-      name: newName,
-      number: newNumber,
-    },
-  ];
+  const handleDelete = (id, people, name) => {
+    if (window.confirm(`Delete ${name} ?`)) {
+      phoneServices.deletePerson(id).then(() => {
+        const deletedPerson = people.filter((p) => p.id !== id);
+        setPersons(deletedPerson);
+        setFilteredData(deletedPerson);
+      });
+    }
+  }
 
   const handleAddPerson = (event) => {
     setNewName(event.target.value);
@@ -70,7 +88,7 @@ const App = () => {
         handlerNumber={handleAddNumber}
       />
       <h2>Numbers</h2>
-      <Persons filteredData={filteredData} />
+      <Persons filteredData={filteredData} deletefunc={handleDelete} />
     </div>
   );
 };
