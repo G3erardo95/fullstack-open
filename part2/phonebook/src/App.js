@@ -3,13 +3,26 @@ import { Filter } from "./components/Filter";
 import { Persons } from "./components/Persons";
 import { PersonForm } from "./components/PersonForm";
 import phoneServices from "./services/phoneServices";
+import { Notification } from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filteredData, setFilteredData] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [color, setColor] = useState("");
 
+  const NoteStyle = {
+    color: color,
+    background: "lightgrey",
+    fontSize: "20px",
+    borderStyle: "solid",
+    borderRadius: "5px",
+    padding: "10px",
+    marginBottom: "10px"
+  }
+  
   useEffect(() => {
     phoneServices.getPerson().then((response) => {
       setPersons(response.data);
@@ -38,16 +51,23 @@ const App = () => {
           } else if (res.status === 200) {
             return phoneServices.getPerson().then((response) => {
               setFilteredData(response.data);
+              handleMessage('green',`Changed ${existingPerson.name}'s number`);
             });
           }
-        });
-      }
+        })
+        .catch(() => {
+          handleMessage(
+            'red',`${existingPerson.name} was already removed from server`
+          ) 
+        }
+        )};
     } else {
       phoneServices.addNewPerson(newPerson).then((response) => {
         setPersons(persons.concat(response.data));
         setFilteredData(persons.concat(response.data));
         setNewName("");
         setNewNumber("");
+        handleMessage('green',`Added ${response.data.name}`);
       });
     }
   };
@@ -58,6 +78,7 @@ const App = () => {
         const deletedPerson = people.filter((p) => p.id !== id);
         setPersons(deletedPerson);
         setFilteredData(deletedPerson);
+        handleMessage('green',`Deleted ${name} successfully`);
       });
     }
   };
@@ -76,9 +97,18 @@ const App = () => {
     setFilteredData(filterSearch(event.target.value));
   };
 
+  const handleMessage = (color, message) => {
+    setColor(color);
+    setErrorMessage(message);
+    setTimeout(() => {
+      setErrorMessage(null);
+    }, 2500);
+  };
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage} style={NoteStyle} />
       <Filter handler={handleFilter} />
       <h2>Add a new</h2>
       <PersonForm
@@ -93,5 +123,6 @@ const App = () => {
     </div>
   );
 };
+
 
 export default App;
