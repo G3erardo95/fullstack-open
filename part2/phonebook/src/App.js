@@ -32,11 +32,20 @@ const App = () => {
           `${existingPerson.name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        phoneServices.changePerson(existingPerson.id, newPerson);
+        phoneServices.changePerson(existingPerson.id, newPerson).then((res) => {
+          if (res.status !== 200) {
+            return;
+          } else if (res.status === 200) {
+            return phoneServices.getPerson().then((response) => {
+              setFilteredData(response.data);
+            });
+          }
+        });
       }
     } else {
       phoneServices.addNewPerson(newPerson).then((response) => {
         setPersons(persons.concat(response.data));
+        setFilteredData(persons.concat(response.data));
         setNewName("");
         setNewNumber("");
       });
@@ -62,7 +71,8 @@ const App = () => {
   };
 
   const handleFilter = (event) => {
-    const filterSearch = (s) => persons.filter((f) => f.name.includes(s));
+    const filterSearch = (s) =>
+      persons.filter((f) => f.name.toLowerCase().includes(s));
     setFilteredData(filterSearch(event.target.value));
   };
 
